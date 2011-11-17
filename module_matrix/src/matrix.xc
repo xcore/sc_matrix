@@ -28,9 +28,11 @@ int matrix_sca_op(enum matrix_ops op, int A[], short dimA[2], int S,
 	int ? C[], short ? dimC[2], char nThreads)
 {
 	int retval[8] = {0,0,0,0,0,0,0,0}, i;
-	int ptA = pointer_int(A), ptC = pointer_int(C),
-		ptDimA = pointer_short(dimA),
-		ptRetval = pointer_int(retval);
+	int ptA, ptC, ptDimA, ptRetval;
+	POINTER(ptA,A);
+	POINTER(ptC,C);
+	POINTER(ptDimA,dimA);
+	POINTER(ptRetval,retval);
 	/* First do some sanity checks... */
 	if (isnull(C))
 	{
@@ -67,9 +69,16 @@ int matrix_arr_op(enum matrix_ops op, int A[], short dimA[2], int B[], short dim
 	int ? C[], short ? dimC[2], char nThreads)
 {
 	int retval[8] = {0,0,0,0,0,0,0,0}, i;
-	int ptA = pointer_int(A), ptB = pointer_int(B), ptC = pointer_int(C),
+	int ptA, ptB, ptC, ptDimA, ptDimB, ptRetval;
+	POINTER(ptA,A);
+	POINTER(ptB,B);
+	POINTER(ptC,C);
+	POINTER(ptDimA,dimA);
+	POINTER(ptDimB,dimB);
+	POINTER(ptRetval,retval);
+	/*int ptA = pointer_int(A), ptB = pointer_int(B), ptC = pointer_int(C),
 		ptDimA = pointer_short(dimA), ptDimB = pointer_short(dimB),
-		ptRetval = pointer_int(retval);
+		ptRetval = pointer_int(retval);*/
 	/* First do some sanity checks... */
 	if (dimA[0] != dimB[0] || dimA[1] != dimB[1]) return -2; //Invalid dimensions
 	if (isnull(C))
@@ -107,9 +116,13 @@ int matrix_mul(int A[], short dimA[2], int B[], short dimB[2],
 	int ? C[], short ? dimC[2], char nThreads)
 {
 	int retval[8] = {0,0,0,0,0,0,0,0}, i;
-	int ptA = pointer_int(A), ptB = pointer_int(B), ptC = pointer_int(C),
-		ptDimA = pointer_short(dimA), ptDimB = pointer_short(dimB),
-		ptRetval = pointer_int(retval);
+	int ptA, ptB, ptC, ptDimA, ptDimB, ptRetval;
+	POINTER(ptA,A);
+	POINTER(ptB,B);
+	POINTER(ptC,C);
+	POINTER(ptDimA,dimA);
+	POINTER(ptDimB,dimB);
+	POINTER(ptRetval,retval);
 	/* First do some sanity checks... */
 	if (dimA[1] != dimB[0]) return -2; //Matrices cannot be multiplied
 	if (isnull(C))
@@ -160,3 +173,4 @@ void matrix_print(char name[], int M[], short dimM[2])
 	}
 	printf("\n");
 }
+

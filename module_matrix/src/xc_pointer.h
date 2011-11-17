@@ -17,6 +17,8 @@
 #define NULLABLE
 #endif
 
+#define POINTER(dst,src) asm("mov %0,%1":"=r"(dst):"r"(src))
+
 unsigned int pointer_int(int NULLABLE p[]);
 unsigned int pointer_short(short NULLABLE p[]);
 unsigned int pointer_char(char NULLABLE p[]);
