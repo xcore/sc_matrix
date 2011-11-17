@@ -68,6 +68,7 @@ void matrix_arr_worker(enum matrix_ops op, int ptA, int ptDimA, int ptB, int ptD
 				break;
 			case UDIV:
 				res = (unsigned)a / (unsigned)b;
+				break;
 			default:
 				break;	
 			}
@@ -110,6 +111,7 @@ void matrix_sca_worker(enum matrix_ops op, int ptA, int ptDimA, int S, int ptC,
 				break;
 			case UDIV:
 				res = (unsigned)a / (unsigned)S;
+				break;
 			default:
 				break;	
 			}
