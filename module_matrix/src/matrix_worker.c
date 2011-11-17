@@ -9,7 +9,17 @@
  */
 
 #include "matrix_worker.h"
-#include <stdio.h>
+#include <stdlib.h>
+
+/* If rand() isn't 32-bit let's fix it. */
+#if RAND_MAX < 0xffff
+#define myrand() (((rand() << 24) & 0xff000000) | ((rand() << 16) & 0x00ff000)) \
+	((rand() << 8) & 0x0000ff00)) | (rand() & 0x000000ff))
+#elif RAND_MAX < 0xffffffff
+#define myrand() (((rand() << 16) & 0xffff0000) | (rand() & 0xffff))
+#else
+#define myrand() rand()
+#endif
 
 void matrix_mul_worker(int ptA, int ptDimA, int ptB, int ptDimB, int ptC,
 	int ptOps, char nThreads, char offset)
@@ -69,6 +79,7 @@ void matrix_arr_worker(enum matrix_ops op, int ptA, int ptDimA, int ptB, int ptD
 			case UDIV:
 				res = (unsigned)a / (unsigned)b;
 				break;
+			case RAND: //Fall through to default
 			default:
 				break;	
 			}
@@ -111,6 +122,9 @@ void matrix_sca_worker(enum matrix_ops op, int ptA, int ptDimA, int S, int ptC,
 				break;
 			case UDIV:
 				res = (unsigned)a / (unsigned)S;
+				break;
+			case RAND:
+				res = myrand();
 				break;
 			default:
 				break;	
