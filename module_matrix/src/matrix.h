@@ -16,7 +16,7 @@
 // Number of threads to use
 // Specify this in your Makefile if you prefer
 #ifndef MATRIX_NTHREADS
-	#define MATRIX_NTHREADS 2
+	#define MATRIX_NTHREADS 4
 #endif
 
 #ifdef __XC__
@@ -41,7 +41,7 @@
 #define MATRIX_ROWS(name) (dim##name[0])
 #define MATRIX_COLS(name) (dim##name[1])
 
-enum matrix_ops { ADD, SUB, MUL, DIV, SDIV, UDIV };
+enum matrix_ops { ADD, SUB, MUL, DIV, SDIV, UDIV, RAND };
 
 int matrix_redim(short dims[4],short rows, short columns);
 
