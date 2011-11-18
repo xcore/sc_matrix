@@ -13,6 +13,27 @@
 #include "matrix_worker.h"
 #include "xs1.h"
 
+{int,int} matrix_calc_block(int size, int nthreads)
+{
+	int blockSize, blockRem, lastBlock;
+	blockSize = size / nthreads;
+	blockRem = size % blockSize;
+	if (blockRem != 0)
+	{
+		if ((blockSize + 1)*(nthreads-1) < size)
+		{
+			blockSize += 1;
+			
+		}
+		lastBlock = size - (blockSize * (nthreads-1));
+	}
+	else
+	{
+		lastBlock = blockSize;
+	}
+	return {blockSize,lastBlock};
+}
+
 int matrix_redim(short dims[4],short rows, short columns)
 {
 	if (dims[2] < rows || dims[3] < columns)
@@ -29,7 +50,7 @@ int matrix_sca_op(enum matrix_ops op, int A[], short dimA[2], int S,
 {
 	int retval[8] = {0,0,0,0,0,0,0,0}, i;
 	int ptA, ptC, ptDimA, ptRetval;
-	int srcSize = dimA[0] * dimA[1], blockSize, blockRem, lastBlock;
+	int srcSize = dimA[0] * dimA[1], blockSize, lastBlock;
 	POINTER(ptA,A);
 	POINTER(ptC,C);
 	POINTER(ptDimA,dimA);
@@ -57,34 +78,20 @@ int matrix_sca_op(enum matrix_ops op, int A[], short dimA[2], int S,
 	/* Early-out for small data */
 	if (srcSize < MATRIX_NTHREADS * MATRIX_NTHREADS)
 	{
-		matrix_sca_worker(op,ptA,ptDimA,S,ptC,ptRetval,
+		matrix_sca_worker(op,ptA,S,ptC,ptRetval,
 				0, srcSize);
 		return retval[0];
 	}
 	/* More optimal distribution of workload */
-	blockSize = srcSize / MATRIX_NTHREADS;
-	blockRem = srcSize % blockSize;
-	if (blockRem != 0)
-	{
-		if ((blockSize + 1)*(MATRIX_NTHREADS-1) < srcSize)
-		{
-			blockSize += 1;
-			
-		}
-		lastBlock = srcSize - (blockSize * (MATRIX_NTHREADS-1));
-	}
-	else
-	{
-		lastBlock = blockSize;
-	}
+	{blockSize,lastBlock} = matrix_calc_block(srcSize,MATRIX_NTHREADS);
 	par
 	{
 		par (int t = 0; t < MATRIX_NTHREADS-1; t++)
 		{
-			matrix_sca_worker(op,ptA,ptDimA,S,ptC,ptRetval+(t * sizeof(int)),
+			matrix_sca_worker(op,ptA,S,ptC,ptRetval+(t * sizeof(int)),
 				blockSize * t, blockSize);
 		}
-		matrix_sca_worker(op,ptA,ptDimA,S,ptC,ptRetval+((MATRIX_NTHREADS-1) * sizeof(int)),
+		matrix_sca_worker(op,ptA,S,ptC,ptRetval+((MATRIX_NTHREADS-1) * sizeof(int)),
 				blockSize * (MATRIX_NTHREADS-1), lastBlock);
 	}
 	for (i = 1; i < 8; i++)
@@ -99,6 +106,7 @@ int matrix_arr_op(enum matrix_ops op, int A[], short dimA[2], int B[], short dim
 {
 	int retval[8] = {0,0,0,0,0,0,0,0}, i;
 	int ptA, ptB, ptC, ptDimA, ptDimB, ptRetval;
+	int srcSize = dimA[0] * dimA[1], blockSize, lastBlock;
 	POINTER(ptA,A);
 	POINTER(ptB,B);
 	POINTER(ptC,C);
@@ -129,10 +137,24 @@ int matrix_arr_op(enum matrix_ops op, int A[], short dimA[2], int B[], short dim
 	{
 		ptC = ptA;
 	}
-	par (int t = 0; t < MATRIX_NTHREADS; t++)
+	/* Early-out for small data */
+	if (srcSize < MATRIX_NTHREADS * MATRIX_NTHREADS)
 	{
-		matrix_arr_worker(op,ptA,ptDimA,ptB,ptDimB,ptC,ptRetval,
-			MATRIX_NTHREADS,t);
+		matrix_arr_worker(op,ptA,ptB,ptC,ptRetval,
+				0, srcSize);
+		return retval[0];
+	}
+	/* More optimal distribution of workload */
+	{blockSize,lastBlock} = matrix_calc_block(srcSize,MATRIX_NTHREADS);
+	par
+	{
+		par (int t = 0; t < MATRIX_NTHREADS-1; t++)
+		{
+			matrix_arr_worker(op,ptA,ptB,ptC,ptRetval+(t * sizeof(int)),
+				blockSize * t, blockSize);
+		}
+		matrix_arr_worker(op,ptA,ptB,ptC,ptRetval+((MATRIX_NTHREADS-1) * sizeof(int)),
+				blockSize * (MATRIX_NTHREADS-1), lastBlock);
 	}
 	for (i = 1; i < 8; i++)
 	{

@@ -46,51 +46,43 @@ void matrix_mul_worker(int ptA, int ptDimA, int ptB, int ptDimB, int ptC,
 	return;
 }
 
-void matrix_arr_worker(enum matrix_ops op, int ptA, int ptDimA, int ptB, int ptDimB, int ptC,
-	int ptOps, char nThreads, char offset)
+void matrix_arr_worker(enum matrix_ops op, int ptA, int ptB, int ptC,
+	int ptOps, short offset, short len)
 {
 	int *A = (int *)ptA, *B = (int *)ptB, *C = (int *)ptC,
-		*ops = (int *)ptOps;
-	short *dimA = (short *)ptDimA, *dimB = (short *)ptDimB;
-	int r,c;
-	ops += offset;
-	*ops = 0;
-	int rlim = dimA[0], clim = dimB[1];
-	for (r = 0; r < rlim; r++)
+		*ops = (int *)ptOps, base;
+	for (base = offset; base < offset + len; base += 1)
 	{
-		for (c = offset; c < clim; c += nThreads)
+		int res, a = A[base], b = B[base];
+		switch (op)
 		{
-			int res, a = A[r * rlim + c], b = B[r * rlim + c];
-			switch (op)
-			{
-			case ADD:
-				res = a + b;
-				break;
-			case SUB:
-				res = a - b;
-				break;
-			case MUL:
-				res = a * b;
-				break;
-			case DIV:
-			case SDIV:
-				res = a / b;
-				break;
-			case UDIV:
-				res = (unsigned)a / (unsigned)b;
-				break;
-			case RAND: //Fall through to default
-			default:
-				break;	
-			}
-			C[r * rlim + c] = res;
-			*ops += 1;
+		case ADD:
+			res = a + b;
+			break;
+		case SUB:
+			res = a - b;
+			break;
+		case MUL:
+			res = a * b;
+			break;
+		case DIV:
+		case SDIV:
+			res = a / b;
+			break;
+		case UDIV:
+			res = (unsigned)a / (unsigned)b;
+			break;
+		case RAND: //Fall through to default
+		default:
+			break;	
 		}
+		C[base] = res;
 	}
+	*ops = len;
 	return;
 }
 
-void matrix_sca_worker(enum matrix_ops op, int ptA, int ptDimA, int S, int ptC,
+void matrix_sca_worker(enum matrix_ops op, int ptA, int S, int ptC,
 	int ptOps, short offset, short len)
 {
 	int *A = (int *)ptA, *C = (int *)ptC,
