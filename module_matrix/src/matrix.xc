@@ -29,6 +29,7 @@ int matrix_sca_op(enum matrix_ops op, int A[], short dimA[2], int S,
 {
 	int retval[8] = {0,0,0,0,0,0,0,0}, i;
 	int ptA, ptC, ptDimA, ptRetval;
+	int srcSize = dimA[0] * dimA[1], blockSize, blockRem, lastBlock;
 	POINTER(ptA,A);
 	POINTER(ptC,C);
 	POINTER(ptDimA,dimA);
@@ -53,10 +54,38 @@ int matrix_sca_op(enum matrix_ops op, int A[], short dimA[2], int S,
 	{
 		ptC = ptA;
 	}
-	par (int t = 0; t < MATRIX_NTHREADS; t++)
+	/* Early-out for small data */
+	if (srcSize < MATRIX_NTHREADS * MATRIX_NTHREADS)
 	{
 		matrix_sca_worker(op,ptA,ptDimA,S,ptC,ptRetval,
-			MATRIX_NTHREADS, t);
+				0, srcSize);
+		return retval[0];
+	}
+	/* More optimal distribution of workload */
+	blockSize = srcSize / MATRIX_NTHREADS;
+	blockRem = srcSize % blockSize;
+	if (blockRem != 0)
+	{
+		if ((blockSize + 1)*(MATRIX_NTHREADS-1) < srcSize)
+		{
+			blockSize += 1;
+			
+		}
+		lastBlock = srcSize - (blockSize * (MATRIX_NTHREADS-1));
+	}
+	else
+	{
+		lastBlock = blockSize;
+	}
+	par
+	{
+		par (int t = 0; t < MATRIX_NTHREADS-1; t++)
+		{
+			matrix_sca_worker(op,ptA,ptDimA,S,ptC,ptRetval+(t * sizeof(int)),
+				blockSize * t, blockSize);
+		}
+		matrix_sca_worker(op,ptA,ptDimA,S,ptC,ptRetval+((MATRIX_NTHREADS-1) * sizeof(int)),
+				blockSize * (MATRIX_NTHREADS-1), lastBlock);
 	}
 	for (i = 1; i < 8; i++)
 	{

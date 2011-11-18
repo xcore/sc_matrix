@@ -61,12 +61,12 @@ void perfcheck(void)
 	/* The greatest irony of the performance check is that it doesn't
 	 reuse memory or resources from the basic demo. Good job it's only
 	 a demonstration of computational speed, then. */
-#define MATRIX_MAX_PERF 32
+#define MATRIX_MAX_PERF 48
 	MATRIX_CREATE(A,MATRIX_MAX_PERF,MATRIX_MAX_PERF,0);
 	MATRIX_CREATE(B,MATRIX_MAX_PERF,MATRIX_MAX_PERF,0);
 	timer t;
 	unsigned int tvA, tvB;
-	int r,c;
+	int e, lim;
 	matrix_sca_op(RAND,MATRIX_REF(A),0,MATRIX_NULL(),0);
 	printf("MATRIX_NTHREADS: %u\n",MATRIX_NTHREADS);
 	for (int i = 1, ops = 0; i <= MATRIX_MAX_PERF; i++, ops = 0)
@@ -75,14 +75,12 @@ void perfcheck(void)
 		printf("\nMatrix size: %dx%d\n",i,i);
 		/* Scalar multiplication by 2 */
 		t :> tvA;
-		for (r = 0; r < MATRIX_ROWS(A); r += 1)
+		lim = MATRIX_ROWS(A) * MATRIX_COLS(A);
+		for (e = 0; e < lim; e += 1)
 		{
-			for (c = 0; c < MATRIX_COLS(A); c += 1)
-			{
-				B[r * c] = A[r * c] * 2;
-				ops += 1;
-			}
+			B[e] = A[e] * 2;
 		}
+		ops += lim;
 		t :> tvB;
 		printf("By-hand scalar * 2 :: Ticks: %u, Ops: %u\n",tvB - tvA, ops);
 		t :> tvA;
