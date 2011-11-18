@@ -27,9 +27,8 @@ void matrix_mul_worker(int ptA, int ptDimA, int ptB, int ptDimB, int ptC,
 	int *A = (int *)ptA, *B = (int *)ptB, *C = (int *)ptC,
 		*ops = (int *)ptOps;
 	short *dimA = (short *)ptDimA, *dimB = (short *)ptDimB;
-	int p,r,c;
+	int p,r,c,lops = 0;
 	ops += offset;
-	*ops = 0;
 	int rlim = dimA[0], clim = dimB[1], plim = dimA[1];
 	for (r = 0; r < rlim; r++)
 	{
@@ -39,10 +38,11 @@ void matrix_mul_worker(int ptA, int ptDimA, int ptB, int ptDimB, int ptC,
 			for (p = 0; p < plim; p += 1)
 			{
 				C[r * rlim + c] += A[r * plim + p] * B[p * clim + c];
-				*ops += 1;
+				lops += 1;
 			}
 		}
 	}
+	*ops = lops;
 	return;
 }
 
@@ -94,7 +94,7 @@ void matrix_sca_worker(enum matrix_ops op, int ptA, int ptDimA, int S, int ptC,
 	int ptOps, short offset, short len)
 {
 	int *A = (int *)ptA, *C = (int *)ptC,
-		*ops = (int *)ptOps, lops = 0, base;
+		*ops = (int *)ptOps, base;
 	for (base = offset; base < offset + len; base += 1)
 	{
 		int a = A[base], res;
