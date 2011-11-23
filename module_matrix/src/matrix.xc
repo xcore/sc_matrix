@@ -13,6 +13,17 @@
 #include "matrix_worker.h"
 #include "xs1.h"
 
+/* Make invoking the scalar and array threads a little bit shorter */
+#define MATRIX_WORKER_SPAWN(name,blockSize,lastBlock, ...) 				\
+par											\
+{											\
+	par (int t = 0; t < MATRIX_NTHREADS-1; t++)					\
+	{										\
+		name(__VA_ARGS__+(t * sizeof(int)), blockSize * t, blockSize);				\
+	}										\
+	name(__VA_ARGS__ +((MATRIX_NTHREADS-1) * sizeof(int)), blockSize * (MATRIX_NTHREADS-1), lastBlock);	\
+}
+
 {int,int} matrix_calc_block(int size, int nthreads)
 {
 	int blockSize, blockRem, lastBlock;
@@ -78,21 +89,57 @@ int matrix_sca_op(enum matrix_ops op, int A[], short dimA[2], int S,
 	/* Early-out for small data */
 	if (srcSize < MATRIX_NTHREADS * MATRIX_NTHREADS)
 	{
-		matrix_sca_worker(op,ptA,S,ptC,ptRetval,
-				0, srcSize);
+		switch (op)
+		{
+		case ADD:
+			matrix_sca_worker_add(ptA,S,ptC,ptRetval,0,srcSize);
+			break;
+		case SUB:
+			matrix_sca_worker_sub(ptA,S,ptC,ptRetval,0,srcSize);
+			break;
+		case MUL:
+			matrix_sca_worker_mul(ptA,S,ptC,ptRetval,0,srcSize);
+			break;
+		case DIV:
+		case SDIV:
+			matrix_sca_worker_div(ptA,S,ptC,ptRetval,0,srcSize);
+			break;
+		case UDIV:
+			matrix_sca_worker_udiv(ptA,S,ptC,ptRetval,0,srcSize);
+			break;
+		case RAND: //Fall through to default
+			matrix_sca_worker_rand(ptC,ptRetval,0,srcSize);
+			break;
+		default:
+			break;	
+		}
 		return retval[0];
 	}
 	/* More optimal distribution of workload */
 	{blockSize,lastBlock} = matrix_calc_block(srcSize,MATRIX_NTHREADS);
-	par
+	switch (op)
 	{
-		par (int t = 0; t < MATRIX_NTHREADS-1; t++)
-		{
-			matrix_sca_worker(op,ptA,S,ptC,ptRetval+(t * sizeof(int)),
-				blockSize * t, blockSize);
-		}
-		matrix_sca_worker(op,ptA,S,ptC,ptRetval+((MATRIX_NTHREADS-1) * sizeof(int)),
-				blockSize * (MATRIX_NTHREADS-1), lastBlock);
+	case ADD:
+		MATRIX_WORKER_SPAWN(matrix_sca_worker_add,blockSize,lastBlock,ptA,S,ptC,ptRetval);
+		break;
+	case SUB:
+		MATRIX_WORKER_SPAWN(matrix_sca_worker_sub,blockSize,lastBlock,ptA,S,ptC,ptRetval);
+		break;
+	case MUL:
+		MATRIX_WORKER_SPAWN(matrix_sca_worker_mul,blockSize,lastBlock,ptA,S,ptC,ptRetval);
+		break;
+	case DIV:
+	case SDIV:
+		MATRIX_WORKER_SPAWN(matrix_sca_worker_div,blockSize,lastBlock,ptA,S,ptC,ptRetval);
+		break;
+	case UDIV:
+		MATRIX_WORKER_SPAWN(matrix_sca_worker_udiv,blockSize,lastBlock,ptA,S,ptC,ptRetval);
+		break;
+	case RAND:
+		MATRIX_WORKER_SPAWN(matrix_sca_worker_rand,blockSize,lastBlock,ptC,ptRetval);
+		break;
+	default:
+		break;	
 	}
 	for (i = 1; i < 8; i++)
 	{
@@ -140,21 +187,53 @@ int matrix_arr_op(enum matrix_ops op, int A[], short dimA[2], int B[], short dim
 	/* Early-out for small data */
 	if (srcSize < MATRIX_NTHREADS * MATRIX_NTHREADS)
 	{
-		matrix_arr_worker(op,ptA,ptB,ptC,ptRetval,
-				0, srcSize);
+		switch (op)
+		{
+		case ADD:
+			matrix_arr_worker_add(ptA,ptB,ptC,ptRetval,0,srcSize);
+			break;
+		case SUB:
+			matrix_arr_worker_sub(ptA,ptB,ptC,ptRetval,0,srcSize);
+			break;
+		case MUL:
+			matrix_arr_worker_mul(ptA,ptB,ptC,ptRetval,0,srcSize);
+			break;
+		case DIV:
+		case SDIV:
+			matrix_arr_worker_div(ptA,ptB,ptC,ptRetval,0,srcSize);
+			break;
+		case UDIV:
+			matrix_arr_worker_udiv(ptA,ptB,ptC,ptRetval,0,srcSize);
+			break;
+		case RAND: //Fall through to default
+		default:
+			break;	
+		}
 		return retval[0];
 	}
 	/* More optimal distribution of workload */
 	{blockSize,lastBlock} = matrix_calc_block(srcSize,MATRIX_NTHREADS);
-	par
+	switch (op)
 	{
-		par (int t = 0; t < MATRIX_NTHREADS-1; t++)
-		{
-			matrix_arr_worker(op,ptA,ptB,ptC,ptRetval+(t * sizeof(int)),
-				blockSize * t, blockSize);
-		}
-		matrix_arr_worker(op,ptA,ptB,ptC,ptRetval+((MATRIX_NTHREADS-1) * sizeof(int)),
-				blockSize * (MATRIX_NTHREADS-1), lastBlock);
+	case ADD:
+		MATRIX_WORKER_SPAWN(matrix_arr_worker_add,blockSize,lastBlock,ptA,ptB,ptC,ptRetval);
+		break;
+	case SUB:
+		MATRIX_WORKER_SPAWN(matrix_arr_worker_sub,blockSize,lastBlock,ptA,ptB,ptC,ptRetval);
+		break;
+	case MUL:
+		MATRIX_WORKER_SPAWN(matrix_arr_worker_mul,blockSize,lastBlock,ptA,ptB,ptC,ptRetval);
+		break;
+	case DIV:
+	case SDIV:
+		MATRIX_WORKER_SPAWN(matrix_arr_worker_div,blockSize,lastBlock,ptA,ptB,ptC,ptRetval);
+		break;
+	case UDIV:
+		MATRIX_WORKER_SPAWN(matrix_arr_worker_udiv,blockSize,lastBlock,ptA,ptB,ptC,ptRetval);
+		break;
+	case RAND: //Fall through to default
+	default:
+		break;	
 	}
 	for (i = 1; i < 8; i++)
 	{

@@ -16,10 +16,40 @@
 void matrix_mul_worker(int ptA, int ptDimA, int ptB, int ptDimB, int ptC,
 	int ptOps, char nThreads, char offset);
 	
-void matrix_arr_worker(enum matrix_ops op, int ptA, int ptB, int ptC,
+/* Piecewise (array) ops */
+	
+void matrix_arr_worker_add(int ptA, int ptB, int ptC,
+	int ptOps, short offset, short len);
+
+void matrix_arr_worker_sub(int ptA, int ptB, int ptC,
+	int ptOps, short offset, short len);
+
+void matrix_arr_worker_mul(int ptA, int ptB, int ptC,
+	int ptOps, short offset, short len);
+
+void matrix_arr_worker_div(int ptA, int ptB, int ptC,
+	int ptOps, short offset, short len);
+
+void matrix_arr_worker_udiv(int ptA, int ptB, int ptC,
 	int ptOps, short offset, short len);
 	
-void matrix_sca_worker(enum matrix_ops op, int ptA, int S, int ptC,
+/* Scalar ops */
+	
+void matrix_sca_worker_add(int ptA, int S, int ptC,
 	int ptOps, short offset, short len);
+
+void matrix_sca_worker_sub(int ptA, int S, int ptC,
+	int ptOps, short offset, short len);
+
+void matrix_sca_worker_mul(int ptA, int S, int ptC,
+	int ptOps, short offset, short len);
+
+void matrix_sca_worker_div(int ptA, int S, int ptC,
+	int ptOps, short offset, short len);
+
+void matrix_sca_worker_udiv(int ptA, int S, int ptC,
+	int ptOps, short offset, short len);
+
+void matrix_sca_worker_rand(int ptC, int ptOps, short offset, short len);
 
 #endif /* MATRIX_WORKER_H_ */

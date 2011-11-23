@@ -46,76 +46,144 @@ void matrix_mul_worker(int ptA, int ptDimA, int ptB, int ptDimB, int ptC,
 	return;
 }
 
-void matrix_arr_worker(enum matrix_ops op, int ptA, int ptB, int ptC,
+void matrix_arr_worker_add(int ptA, int ptB, int ptC,
 	int ptOps, short offset, short len)
 {
-	int *A = (int *)ptA, *B = (int *)ptB, *C = (int *)ptC,
+		int *A = (int *)ptA, *B = (int *)ptB, *C = (int *)ptC,
 		*ops = (int *)ptOps, base;
 	for (base = offset; base < offset + len; base += 1)
 	{
-		int res, a = A[base], b = B[base];
-		switch (op)
-		{
-		case ADD:
-			res = a + b;
-			break;
-		case SUB:
-			res = a - b;
-			break;
-		case MUL:
-			res = a * b;
-			break;
-		case DIV:
-		case SDIV:
-			res = a / b;
-			break;
-		case UDIV:
-			res = (unsigned)a / (unsigned)b;
-			break;
-		case RAND: //Fall through to default
-		default:
-			break;	
-		}
-		C[base] = res;
+		C[base] = A[base] + B[base];
 	}
 	*ops = len;
 	return;
 }
 
-void matrix_sca_worker(enum matrix_ops op, int ptA, int S, int ptC,
+void matrix_arr_worker_sub(int ptA, int ptB, int ptC,
+	int ptOps, short offset, short len)
+{
+		int *A = (int *)ptA, *B = (int *)ptB, *C = (int *)ptC,
+		*ops = (int *)ptOps, base;
+	for (base = offset; base < offset + len; base += 1)
+	{
+		C[base] = A[base] - B[base];
+	}
+	*ops = len;
+	return;
+}
+
+void matrix_arr_worker_mul(int ptA, int ptB, int ptC,
+	int ptOps, short offset, short len)
+{
+		int *A = (int *)ptA, *B = (int *)ptB, *C = (int *)ptC,
+		*ops = (int *)ptOps, base;
+	for (base = offset; base < offset + len; base += 1)
+	{
+		C[base] = A[base] * B[base];
+	}
+	*ops = len;
+	return;
+}
+
+void matrix_arr_worker_div(int ptA, int ptB, int ptC,
+	int ptOps, short offset, short len)
+{
+		int *A = (int *)ptA, *B = (int *)ptB, *C = (int *)ptC,
+		*ops = (int *)ptOps, base;
+	for (base = offset; base < offset + len; base += 1)
+	{
+		C[base] = A[base] / B[base];
+	}
+	*ops = len;
+	return;
+}
+
+void matrix_arr_worker_udiv(int ptA, int ptB, int ptC,
+	int ptOps, short offset, short len)
+{
+		int *A = (int *)ptA, *B = (int *)ptB, *C = (int *)ptC,
+		*ops = (int *)ptOps, base;
+	for (base = offset; base < offset + len; base += 1)
+	{
+		C[base] = (unsigned)A[base] / (unsigned)B[base];
+	}
+	*ops = len;
+	return;
+}
+
+void matrix_sca_worker_add(int ptA, int S, int ptC,
 	int ptOps, short offset, short len)
 {
 	int *A = (int *)ptA, *C = (int *)ptC,
 		*ops = (int *)ptOps, base;
 	for (base = offset; base < offset + len; base += 1)
 	{
-		int a = A[base], res;
-		switch (op)
-		{
-		case ADD:
-			res = a + S;
-			break;
-		case SUB:
-			res = a - S;
-			break;
-		case MUL:
-			res = a * S;
-			break;
-		case DIV:
-		case SDIV:
-			res = a / S;
-			break;
-		case UDIV:
-			res = (unsigned)a / (unsigned)S;
-			break;
-		case RAND:
-			res = myrand();
-			break;
-		default:
-			break;	
-		}
-		C[base] = res;
+		C[base] = A[base] + S;
 	}
 	*ops = len;
 	return;
 }
+
+void matrix_sca_worker_sub(int ptA, int S, int ptC,
+	int ptOps, short offset, short len)
+{
+	int *A = (int *)ptA, *C = (int *)ptC,
+		*ops = (int *)ptOps, base;
+	for (base = offset; base < offset + len; base += 1)
+	{
+		C[base] = A[base] - S;
+	}
+	*ops = len;
+	return;
+}
+
+void matrix_sca_worker_mul(int ptA, int S, int ptC,
+	int ptOps, short offset, short len)
+{
+	int *A = (int *)ptA, *C = (int *)ptC,
+		*ops = (int *)ptOps, base;
+	for (base = offset; base < offset + len; base += 1)
+	{
+		C[base] = A[base] * S;
+	}
+	*ops = len;
+	return;
+}
+
+void matrix_sca_worker_div(int ptA, int S, int ptC,
+	int ptOps, short offset, short len)
+{
+	int *A = (int *)ptA, *C = (int *)ptC,
+		*ops = (int *)ptOps, base;
+	for (base = offset; base < offset + len; base += 1)
+	{
+		C[base] = A[base] / S;
+	}
+	*ops = len;
+	return;
+}
+
+void matrix_sca_worker_udiv(int ptA, int S, int ptC,
+	int ptOps, short offset, short len)
+{
+	int *A = (int *)ptA, *C = (int *)ptC,
+		*ops = (int *)ptOps, base;
+	for (base = offset; base < offset + len; base += 1)
+	{
+		C[base] = (unsigned)A[base] / (unsigned)S;
+	}
+	*ops = len;
+	return;
+}
+
+void matrix_sca_worker_rand(int ptC, int ptOps, short offset, short len)
+{
+	int *C = (int *)ptC, *ops = (int *)ptOps, base;
+	for (base = offset; base < offset + len; base += 1)
+	{
+		C[base] = myrand();
+	}
+	*ops = len;
+	return;
+}
+
