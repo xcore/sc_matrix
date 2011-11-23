@@ -56,14 +56,14 @@ int main(void)
 	return 0;
 }
 
+#define MATRIX_MAX_PERF 64
+MATRIX_CREATE(A,MATRIX_MAX_PERF,MATRIX_MAX_PERF,0);
+MATRIX_CREATE(B,MATRIX_MAX_PERF,MATRIX_MAX_PERF,0);
 void perfcheck(void)
 {
 	/* The greatest irony of the performance check is that it doesn't
 	 reuse memory or resources from the basic demo. Good job it's only
 	 a demonstration of computational speed, then. */
-#define MATRIX_MAX_PERF 48
-	MATRIX_CREATE(A,MATRIX_MAX_PERF,MATRIX_MAX_PERF,0);
-	MATRIX_CREATE(B,MATRIX_MAX_PERF,MATRIX_MAX_PERF,0);
 	timer t;
 	unsigned int tvA, tvB;
 	int e, lim;
