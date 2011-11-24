@@ -41,11 +41,13 @@
 #define MATRIX_ROWS(name) (dim##name[0])
 #define MATRIX_COLS(name) (dim##name[1])
 
-enum matrix_ops { ADD, SUB, MUL, DIV, SDIV, UDIV, RAND };
+enum matrix_ops { ADD, SUB, MUL, DIV, SDIV, UDIV, RAND, SET };
 
 int matrix_redim(short dims[4],short rows, short columns);
 
 void matrix_print(char name[], int M[], short dimM[2]);
+
+int matrix_cmp(int A[], short dimA[2], int B[], short dimB[2]);
 
 int matrix_mul(int A[], short dimA[2], int B[], short dimB[2],
 			int NULLABLE C[], short NULLABLE dimC[2], char nThreads);

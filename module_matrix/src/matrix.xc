@@ -84,7 +84,7 @@ int matrix_sca_op(enum matrix_ops op, int A[], short dimA[2], int S,
 			return -5; //Not enough rows in destination matrix
 		}
 	}
-	if (isnull(C))
+	if (isnull(C) || op == SET)
 	{
 		ptC = ptA;
 	}
@@ -111,6 +111,9 @@ int matrix_sca_op(enum matrix_ops op, int A[], short dimA[2], int S,
 			break;
 		case RAND: //Fall through to default
 			matrix_sca_worker_rand(ptC,ptRetval,0,srcSize);
+			break;
+		case SET:
+			matrix_sca_worker_set(S,ptC,ptRetval,0,srcSize);
 			break;
 		default:
 			break;	
@@ -139,6 +142,9 @@ int matrix_sca_op(enum matrix_ops op, int A[], short dimA[2], int S,
 		break;
 	case RAND:
 		MATRIX_WORKER_SPAWN(matrix_sca_worker_rand,blockSize,lastBlock,ptC,ptRetval);
+		break;
+	case SET:
+		MATRIX_WORKER_SPAWN(matrix_sca_worker_set,blockSize,lastBlock,S,ptC,ptRetval);
 		break;
 	default:
 		break;	
@@ -208,6 +214,7 @@ int matrix_arr_op(enum matrix_ops op, int A[], short dimA[2], int B[], short dim
 			matrix_arr_worker_udiv(ptA,ptB,ptC,ptRetval,0,srcSize);
 			break;
 		case RAND: //Fall through to default
+		case SET:  //Still falling...
 		default:
 			break;	
 		}
@@ -234,6 +241,7 @@ int matrix_arr_op(enum matrix_ops op, int A[], short dimA[2], int B[], short dim
 		MATRIX_WORKER_SPAWN(matrix_arr_worker_udiv,blockSize,lastBlock,ptA,ptB,ptC,ptRetval);
 		break;
 	case RAND: //Fall through to default
+	case SET:  //Still falling...
 	default:
 		break;	
 	}
@@ -304,6 +312,21 @@ int matrix_mul(int A[], short dimA[2], int B[], short dimB[2],
 		retval[0] += retval[i];
 	}
 	return retval[0];
+}
+
+int matrix_cmp(int A[], short dimA[2], int B[], short dimB[2])
+{
+	int ret = 0, size, e;
+	if (dimA[0] != dimB[0] || dimA[1] != dimB[1])
+	{
+		return -2; /* Can only compare like-dim'd matrices */
+	}
+	size = dimA[0] * dimA[1];
+	for (e = 0; e < size; e += 1)
+	{
+		ret += A[e] != B[e];
+	}
+	return ret;
 }
 
 void matrix_print(char name[], int M[], short dimM[2])

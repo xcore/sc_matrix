@@ -224,3 +224,14 @@ void matrix_sca_worker_rand(int ptC, int ptOps, short offset, short len)
 	return;
 }
 
+void matrix_sca_worker_set(int S, int ptC, int ptOps, short offset, short len)
+{
+	int *C = (int *)ptC, *ops = (int *)ptOps, base;
+	for (base = offset; base < offset + len; base += 1)
+	{
+		C[base] = S;
+	}
+	*ops = len;
+	return;
+}
+

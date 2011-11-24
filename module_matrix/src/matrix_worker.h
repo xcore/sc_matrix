@@ -55,4 +55,6 @@ void matrix_sca_worker_udiv(int ptA, int S, int ptC,
 
 void matrix_sca_worker_rand(int ptC, int ptOps, short offset, short len);
 
+void matrix_sca_worker_set(int S, int ptC, int ptOps, short offset, short len);
+
 #endif /* MATRIX_WORKER_H_ */
