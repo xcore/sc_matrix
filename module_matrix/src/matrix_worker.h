@@ -16,6 +16,9 @@
 void matrix_mul_worker(int ptA, int ptDimA, int ptB, int ptDimB, int ptC,
 	int ptOps, char nThreads, char offset);
 	
+void matrix_mul_worker_new(int ptA, int ptDimA, int ptB, int ptDimB, int ptC,
+	short startC, short lenC, int ptOps);
+	
 /* Piecewise (array) ops */
 	
 void matrix_arr_worker_add(int ptA, int ptB, int ptC,

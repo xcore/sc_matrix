@@ -21,6 +21,43 @@
 #define myrand() rand()
 #endif
 
+void matrix_mul_worker_new(int ptA, int ptDimA, int ptB, int ptDimB, int ptC,
+	short startC, short lenC, int ptOps)
+{
+	int *A = (int *)ptA, *B = (int *)ptB, *C = (int *)ptC,
+		*ops = (int *)ptOps;
+	short *dimA = (short *)ptDimA, *dimB = (short *)ptDimB;
+	int col = startC % dimB[1], row = startC / dimB[1];
+	for (int dst = startC; dst < startC + lenC; dst += 1)
+	{
+		C[dst] = 0;
+		for (int e = 0; e < dimA[1]; e += 1)
+		{
+			C[dst] += A[row * dimA[1] + e] * B[dimB[1] * e + col];
+		}
+		col += 1;
+		if (col == dimB[1])
+		{
+			col = 0;
+			row += 1;
+		}
+	}
+	/*for (int c = colB; c < colB + lenB; c+= 1)
+	{
+		for (int r = rowA; r < rowA + lenA; r += 1)
+		{
+			int dst = r * dimB[1] + c;
+			C[dst] = 0;
+			for (int e = 0; e < dimA[1]; e += 1)
+			{
+				C[dst] += A[r * dimA[1] + e] * B[c + dimB[1] * e];
+			}
+		}
+	}*/
+	*ops = lenC * (dimA[1] + 1);
+	return;
+}
+
 void matrix_mul_worker(int ptA, int ptDimA, int ptB, int ptDimB, int ptC,
 	int ptOps, char nThreads, char offset)
 {
