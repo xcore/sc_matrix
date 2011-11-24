@@ -14,14 +14,16 @@
 #include "xs1.h"
 
 /* Make invoking the scalar and array threads a little bit shorter */
-#define MATRIX_WORKER_SPAWN(name,blockSize,lastBlock, ...) 				\
-par											\
-{											\
-	par (int t = 0; t < MATRIX_NTHREADS-1; t++)					\
-	{										\
-		name(__VA_ARGS__+(t * sizeof(int)), blockSize * t, blockSize);				\
-	}										\
-	name(__VA_ARGS__ +((MATRIX_NTHREADS-1) * sizeof(int)), blockSize * (MATRIX_NTHREADS-1), lastBlock);	\
+#define MATRIX_WORKER_SPAWN(name,blockSize,lastBlock, ...) 		\
+par									\
+{									\
+	par (int t = 0; t < MATRIX_NTHREADS-1; t++)			\
+	{								\
+		name(__VA_ARGS__+(t * sizeof(int)), blockSize * t, 	\
+			blockSize);					\
+	}								\
+	name(__VA_ARGS__ +((MATRIX_NTHREADS-1) * sizeof(int)),		\
+		blockSize * (MATRIX_NTHREADS-1), lastBlock);		\
 }
 
 {int,int} matrix_calc_block(int size, int nthreads)
