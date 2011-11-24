@@ -289,7 +289,7 @@ int matrix_mul(int A[], short dimA[2], int B[], short dimB[2],
 	}
 	
 	/* Small matrix, use a single thread... */
-	if (dstSize < MATRIX_NTHREADS)
+	if (dstSize < MATRIX_NTHREADS * MATRIX_NTHREADS)
 	{
 		matrix_mul_worker_new(ptA,ptDimA,ptB,ptDimB,ptC,0,dimA[0] * dimB[1],ptRetval);
 		return retval[0];
