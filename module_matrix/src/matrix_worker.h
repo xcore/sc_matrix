@@ -12,11 +12,8 @@
 #define MATRIX_WORKER_H_
 
 #include "matrix.h"
-
-void matrix_mul_worker(int ptA, int ptDimA, int ptB, int ptDimB, int ptC,
-	int ptOps, char nThreads, char offset);
 	
-void matrix_mul_worker_new(int ptA, int ptDimA, int ptB, int ptDimB, int ptC,
+void matrix_mul_worker(int ptA, int ptDimA, int ptB, int ptDimB, int ptC,
 	short startC, short lenC, int ptOps);
 	
 /* Piecewise (array) ops */

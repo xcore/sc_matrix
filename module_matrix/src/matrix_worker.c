@@ -21,7 +21,7 @@
 #define myrand() rand()
 #endif
 
-void matrix_mul_worker_new(int ptA, int ptDimA, int ptB, int ptDimB, int ptC,
+void matrix_mul_worker(int ptA, int ptDimA, int ptB, int ptDimB, int ptC,
 	short startC, short lenC, int ptOps)
 {
 	int *A = (int *)ptA, *B = (int *)ptB, *C = (int *)ptC,
@@ -39,10 +39,6 @@ void matrix_mul_worker_new(int ptA, int ptDimA, int ptB, int ptDimB, int ptC,
 				"0"(result),"1"(result_hi),
 					"r"(A[row * elim + e]),
 					"r"(B[bstep * e + col]));
-			//C[dst] = maccu(C[dst],A[row * dimA[1] + e],B[dimB[1] * e + col]);
-			//asm("maccu %0,%1,%2,%3":"=r"(macce),"=r"(C[dst])
-			//	:"r"(A[row * dimA[1] + e]),"r"(B[dimB[1] * e + col]));
-			//result += A[row * elim + e] * B[bstep * e + col];
 		}
 		C[dst] = result;
 		col += 1;
@@ -52,44 +48,7 @@ void matrix_mul_worker_new(int ptA, int ptDimA, int ptB, int ptDimB, int ptC,
 			row += 1;
 		}
 	}
-	/*for (int c = colB; c < colB + lenB; c+= 1)
-	{
-		for (int r = rowA; r < rowA + lenA; r += 1)
-		{
-			int dst = r * dimB[1] + c;
-			C[dst] = 0;
-			for (int e = 0; e < dimA[1]; e += 1)
-			{
-				C[dst] += A[r * dimA[1] + e] * B[c + dimB[1] * e];
-			}
-		}
-	}*/
 	*ops = lenC * (dimA[1] + 1);
-	return;
-}
-
-void matrix_mul_worker(int ptA, int ptDimA, int ptB, int ptDimB, int ptC,
-	int ptOps, char nThreads, char offset)
-{
-	int *A = (int *)ptA, *B = (int *)ptB, *C = (int *)ptC,
-		*ops = (int *)ptOps;
-	short *dimA = (short *)ptDimA, *dimB = (short *)ptDimB;
-	int p,r,c,lops = 0;
-	ops += offset;
-	int rlim = dimA[0], clim = dimB[1], plim = dimA[1];
-	for (r = 0; r < rlim; r++)
-	{
-		for (c = offset; c < clim; c += nThreads)
-		{
-			C[r * rlim + c] = 0;
-			for (p = 0; p < plim; p += 1)
-			{
-				C[r * rlim + c] += A[r * plim + p] * B[p * clim + c];
-				lops += 1;
-			}
-		}
-	}
-	*ops = lops;
 	return;
 }
 

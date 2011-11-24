@@ -291,7 +291,7 @@ int matrix_mul(int A[], short dimA[2], int B[], short dimB[2],
 	/* Small matrix, use a single thread... */
 	if (dstSize < MATRIX_NTHREADS * MATRIX_NTHREADS)
 	{
-		matrix_mul_worker_new(ptA,ptDimA,ptB,ptDimB,ptC,0,dimA[0] * dimB[1],ptRetval);
+		matrix_mul_worker(ptA,ptDimA,ptB,ptDimB,ptC,0,dimA[0] * dimB[1],ptRetval);
 		return retval[0];
 	}
 	{blockSize,lastBlock} = matrix_calc_block(dstSize,MATRIX_NTHREADS);
@@ -299,11 +299,11 @@ int matrix_mul(int A[], short dimA[2], int B[], short dimB[2],
 	{
 		par (int t = 0; t < MATRIX_NTHREADS-1; t++)
 		{
-			matrix_mul_worker_new(ptA,ptDimA,ptB,ptDimB,ptC,
+			matrix_mul_worker(ptA,ptDimA,ptB,ptDimB,ptC,
 				blockSize * t, blockSize,
 				ptRetval + t * sizeof(int));
 		}
-		matrix_mul_worker_new(ptA,ptDimA,ptB,ptDimB,ptC,
+		matrix_mul_worker(ptA,ptDimA,ptB,ptDimB,ptC,
 			blockSize * (MATRIX_NTHREADS-1), lastBlock,
 			ptRetval + (MATRIX_NTHREADS-1) * sizeof(int));
 	}
