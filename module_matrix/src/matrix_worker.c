@@ -27,16 +27,26 @@ void matrix_mul_worker_new(int ptA, int ptDimA, int ptB, int ptDimB, int ptC,
 	int *A = (int *)ptA, *B = (int *)ptB, *C = (int *)ptC,
 		*ops = (int *)ptOps;
 	short *dimA = (short *)ptDimA, *dimB = (short *)ptDimB;
-	int col = startC % dimB[1], row = startC / dimB[1];
+	int col = startC % dimB[1], bstep = dimB[1], row = startC / dimB[1], elim = dimA[1];
+	int result_hi = 0; //We throw this guy away.
 	for (int dst = startC; dst < startC + lenC; dst += 1)
 	{
-		C[dst] = 0;
-		for (int e = 0; e < dimA[1]; e += 1)
+		int result = 0;
+		for (int e = 0; e < elim; e += 1)
 		{
-			C[dst] += A[row * dimA[1] + e] * B[dimB[1] * e + col];
+			asm("maccu %1, %0, %4, %5" :
+				"=r"(result), "=r"(result_hi) :
+				"0"(result),"1"(result_hi),
+					"r"(A[row * elim + e]),
+					"r"(B[bstep * e + col]));
+			//C[dst] = maccu(C[dst],A[row * dimA[1] + e],B[dimB[1] * e + col]);
+			//asm("maccu %0,%1,%2,%3":"=r"(macce),"=r"(C[dst])
+			//	:"r"(A[row * dimA[1] + e]),"r"(B[dimB[1] * e + col]));
+			//result += A[row * elim + e] * B[bstep * e + col];
 		}
+		C[dst] = result;
 		col += 1;
-		if (col == dimB[1])
+		if (col == bstep)
 		{
 			col = 0;
 			row += 1;
