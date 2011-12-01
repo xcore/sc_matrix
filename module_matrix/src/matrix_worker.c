@@ -227,3 +227,15 @@ void matrix_sca_worker_ashr(int ptA, int S, int ptC, int ptOps, short offset, sh
 	*ops = len;
 	return;
 }
+
+void matrix_sca_worker_shl(int ptA, int S, int ptC, int ptOps, short offset, short len)
+{
+	int *A = (int *)ptA, *C = (int *)ptC,
+		*ops = (int *)ptOps, base;
+	for (base = offset; base < offset + len; base += 1)
+	{
+		C[base] = A[base] << S;
+	}
+	*ops = len;
+	return;
+}
