@@ -33,6 +33,9 @@ void matrix_arr_worker_div(int ptA, int ptB, int ptC,
 void matrix_arr_worker_udiv(int ptA, int ptB, int ptC,
 	int ptOps, short offset, short len);
 	
+void matrix_arr_worker_and(int ptA, int ptB, int ptC,
+	int ptOps, short offset, short len);
+	
 /* Scalar ops */
 	
 void matrix_sca_worker_add(int ptA, int S, int ptC,
@@ -59,5 +62,7 @@ void matrix_sca_worker_shr(int ptA, int S, int ptC, int ptOps, short offset, sho
 void matrix_sca_worker_ashr(int ptA, int S, int ptC, int ptOps, short offset, short len);
 
 void matrix_sca_worker_shl(int ptA, int S, int ptC, int ptOps, short offset, short len);
+
+void matrix_sca_worker_and(int ptA, int S, int ptC, int ptOps, short offset, short len);
 
 #endif /* MATRIX_WORKER_H_ */

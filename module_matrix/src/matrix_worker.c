@@ -117,6 +117,19 @@ void matrix_arr_worker_udiv(int ptA, int ptB, int ptC,
 	return;
 }
 
+void matrix_arr_worker_and(int ptA, int ptB, int ptC,
+	int ptOps, short offset, short len)
+{
+		int *A = (int *)ptA, *B = (int *)ptB, *C = (int *)ptC,
+		*ops = (int *)ptOps, base;
+	for (base = offset; base < offset + len; base += 1)
+	{
+		C[base] = A[base] & B[base];
+	}
+	*ops = len;
+	return;
+}
+
 void matrix_sca_worker_add(int ptA, int S, int ptC,
 	int ptOps, short offset, short len)
 {
@@ -235,6 +248,18 @@ void matrix_sca_worker_shl(int ptA, int S, int ptC, int ptOps, short offset, sho
 	for (base = offset; base < offset + len; base += 1)
 	{
 		C[base] = A[base] << S;
+	}
+	*ops = len;
+	return;
+}
+
+void matrix_sca_worker_and(int ptA, int S, int ptC, int ptOps, short offset, short len)
+{
+	int *A = (int *)ptA, *C = (int *)ptC,
+		*ops = (int *)ptOps, base;
+	for (base = offset; base < offset + len; base += 1)
+	{
+		C[base] = A[base] & S;
 	}
 	*ops = len;
 	return;

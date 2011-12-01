@@ -124,6 +124,9 @@ int matrix_sca_op(enum matrix_ops op, int A[], short dimA[2], int S,
 		case SHL:
 			matrix_sca_worker_shl(ptA,S,ptC,ptRetval,0,srcSize);
 			break;
+		case AND:
+			matrix_sca_worker_and(ptA,S,ptC,ptRetval,0,srcSize);
+			break;
 		default:
 			break;	
 		}
@@ -163,6 +166,9 @@ int matrix_sca_op(enum matrix_ops op, int A[], short dimA[2], int S,
 		break;
 	case SHL:
 		MATRIX_WORKER_SPAWN(matrix_sca_worker_shl,blockSize,lastBlock,ptA,S,ptC,ptRetval);
+		break;
+	case AND:
+		MATRIX_WORKER_SPAWN(matrix_sca_worker_and,blockSize,lastBlock,ptA,S,ptC,ptRetval);
 		break;
 	default:
 		break;	
@@ -231,6 +237,9 @@ int matrix_arr_op(enum matrix_ops op, int A[], short dimA[2], int B[], short dim
 		case UDIV:
 			matrix_arr_worker_udiv(ptA,ptB,ptC,ptRetval,0,srcSize);
 			break;
+		case AND:
+			matrix_arr_worker_and(ptA,ptB,ptC,ptRetval,0,srcSize);
+			break;
 		case RAND: //Fall through to default
 		case SET:  //Still falling...
 		case SHR:  //It's a long way down...
@@ -260,6 +269,9 @@ int matrix_arr_op(enum matrix_ops op, int A[], short dimA[2], int B[], short dim
 		break;
 	case UDIV:
 		MATRIX_WORKER_SPAWN(matrix_arr_worker_udiv,blockSize,lastBlock,ptA,ptB,ptC,ptRetval);
+		break;
+	case AND:
+		MATRIX_WORKER_SPAWN(matrix_arr_worker_and,blockSize,lastBlock,ptA,ptB,ptC,ptRetval);
 		break;
 	case RAND: //Fall through to default
 	case SET:  //Still falling...
