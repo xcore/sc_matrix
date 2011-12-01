@@ -41,7 +41,7 @@
 #define MATRIX_ROWS(name) (dim##name[0])
 #define MATRIX_COLS(name) (dim##name[1])
 
-enum matrix_ops { ADD, SUB, MUL, DIV, SDIV, UDIV, RAND, SET, SHR };
+enum matrix_ops { ADD, SUB, MUL, DIV, SDIV, UDIV, RAND, SET, SHR, ASHR };
 
 int matrix_redim(short dims[4],short rows, short columns);
 

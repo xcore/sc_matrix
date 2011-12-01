@@ -56,4 +56,6 @@ void matrix_sca_worker_set(int S, int ptC, int ptOps, short offset, short len);
 
 void matrix_sca_worker_shr(int ptA, int S, int ptC, int ptOps, short offset, short len);
 
+void matrix_sca_worker_ashr(int ptA, int S, int ptC, int ptOps, short offset, short len);
+
 #endif /* MATRIX_WORKER_H_ */
